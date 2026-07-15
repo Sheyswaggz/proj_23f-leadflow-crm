@@ -9,6 +9,8 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import LeadsPage from './pages/leads/LeadsPage';
 import LeadDetailPage from './pages/leads/LeadDetailPage';
 import FollowUpsPage from './pages/followups/FollowUpsPage';
+import ErrorBoundary from './components/ErrorBoundary';
+import NotFoundPage from './pages/NotFoundPage';
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -71,9 +73,9 @@ function ResetPasswordPage() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/auth" element={<AuthPage />} />
-      <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/" element={<ErrorBoundary><LandingPage /></ErrorBoundary>} />
+      <Route path="/auth" element={<ErrorBoundary><AuthPage /></ErrorBoundary>} />
+      <Route path="/auth/reset-password" element={<ErrorBoundary><ResetPasswordPage /></ErrorBoundary>} />
       <Route
         element={
           <ProtectedRoute>
@@ -81,11 +83,12 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/leads" element={<LeadsPage />} />
-        <Route path="/leads/:id" element={<LeadDetailPage />} />
-        <Route path="/follow-ups" element={<FollowUpsPage />} />
+        <Route path="/dashboard" element={<ErrorBoundary><DashboardPage /></ErrorBoundary>} />
+        <Route path="/leads" element={<ErrorBoundary><LeadsPage /></ErrorBoundary>} />
+        <Route path="/leads/:id" element={<ErrorBoundary><LeadDetailPage /></ErrorBoundary>} />
+        <Route path="/follow-ups" element={<ErrorBoundary><FollowUpsPage /></ErrorBoundary>} />
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

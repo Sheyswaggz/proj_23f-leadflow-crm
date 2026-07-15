@@ -40,10 +40,23 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const url = error.config?.url || 'unknown';
+    const errorData = error.response?.data || error.message;
+
+    if (import.meta.env.DEV) {
+      console.error(`API Error ${status} on ${url}:`, errorData);
+    }
+
+    if (status === 401) {
       removeToken();
       window.dispatchEvent(new CustomEvent('auth:logout'));
+    } else if (status === 404) {
+      window.dispatchEvent(new CustomEvent('api:not-found'));
+    } else if (status && status >= 500) {
+      window.dispatchEvent(new CustomEvent('api:server-error'));
     }
+
     return Promise.reject(error);
   }
 );
