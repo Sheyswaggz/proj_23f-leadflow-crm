@@ -83,12 +83,14 @@ model FollowUpReminder {
   note        String?
   isCompleted Boolean   @default(false)
   completedAt DateTime?
+  notifiedAt  DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@index([userId, dueAt])
   @@index([leadId])
   @@index([userId, isCompleted])
+  @@index([isCompleted, dueAt, notifiedAt])
 }
 
 model PasswordResetToken {
