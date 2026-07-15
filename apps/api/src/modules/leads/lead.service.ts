@@ -1,7 +1,7 @@
 import { Lead } from '@prisma/client';
 import prisma from '../../lib/prisma.js';
 import { AppError } from '../../types/index.js';
-import { CreateLeadInput, ListLeadsQuery } from './lead.schemas.js';
+import { CreateLeadInput, ListLeadsQuery, UpdateLeadInput } from './lead.schemas.js';
 
 export class LeadService {
   async createLead(userId: string, input: CreateLeadInput): Promise<Lead> {
@@ -85,6 +85,17 @@ export class LeadService {
     }
 
     return lead;
+  }
+
+  async updateLead(userId: string, leadId: string, input: UpdateLeadInput): Promise<Lead> {
+    await this.getLeadById(userId, leadId);
+
+    const updatedLead = await prisma.lead.update({
+      where: { id: leadId },
+      data: input,
+    });
+
+    return updatedLead;
   }
 
   async deleteLead(userId: string, leadId: string): Promise<void> {
