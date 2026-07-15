@@ -22,6 +22,10 @@ export const createLeadSchema = z.object({
 
 export type CreateLeadInput = z.infer<typeof createLeadSchema>;
 
+export const updateLeadSchema = createLeadSchema.partial();
+
+export type UpdateLeadInput = z.infer<typeof updateLeadSchema>;
+
 export const listLeadsQuerySchema = z.object({
   page: z.coerce.number().min(1, 'Page must be at least 1').default(1),
   limit: z.coerce.number().min(1, 'Limit must be at least 1').max(100, 'Limit must be at most 100').default(20),

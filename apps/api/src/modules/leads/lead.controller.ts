@@ -64,6 +64,23 @@ export class LeadController {
     }
   }
 
+  async updateLead(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const updatedLead = await leadService.updateLead(req.user!.id, req.params.id, req.body);
+
+      res.status(200).json({
+        success: true,
+        data: updatedLead,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async deleteLead(
     req: AuthenticatedRequest,
     res: Response,
