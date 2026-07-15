@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { ApiResponse } from '../types/index.js';
+import { authRouter } from '../modules/auth/auth.routes.js';
 
 export const apiRouter = Router();
 
@@ -11,3 +12,5 @@ apiRouter.get('/ping', (req: Request, res: Response) => {
 
   res.status(200).json(response);
 });
+
+apiRouter.use('/auth', authRouter);
