@@ -102,6 +102,48 @@ describe('POST /api/v1/leads', () => {
       })
       .expect(401);
   });
+
+  it('create lead with all optional fields', async () => {
+    const response = await request(app)
+      .post('/api/v1/leads')
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        name: 'Jane Smith',
+        email: 'jane@example.com',
+        phone: '555-9999',
+        company: 'Tech Corp',
+        jobTitle: 'CTO',
+        stage: LeadStage.QUALIFIED,
+        notes: 'Very interested in enterprise plan',
+        dealValue: 50000,
+      })
+      .expect(201);
+
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.name).toBe('Jane Smith');
+    expect(response.body.data.email).toBe('jane@example.com');
+    expect(response.body.data.phone).toBe('555-9999');
+    expect(response.body.data.company).toBe('Tech Corp');
+    expect(response.body.data.jobTitle).toBe('CTO');
+    expect(response.body.data.stage).toBe(LeadStage.QUALIFIED);
+    expect(response.body.data.notes).toBe('Very interested in enterprise plan');
+    expect(response.body.data.dealValue).toBe(50000);
+  });
+
+  it('create lead with only required name field', async () => {
+    const response = await request(app)
+      .post('/api/v1/leads')
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        name: 'Minimal Lead',
+      })
+      .expect(201);
+
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.name).toBe('Minimal Lead');
+    expect(response.body.data.stage).toBe(LeadStage.NEW);
+    expect(response.body.data.id).toBeDefined();
+  });
 });
 
 describe('GET /api/v1/leads', () => {
@@ -192,6 +234,91 @@ describe('GET /api/v1/leads', () => {
     expect(response.body.success).toBe(true);
     expect(response.body.data.leads.length).toBeGreaterThanOrEqual(1);
     expect(response.body.data.leads.some((lead: any) => lead.name === uniqueName)).toBe(true);
+  });
+
+  it('list returns empty array when no leads exist', async () => {
+    const uniqueUserEmail = `emptytest${Date.now()}@example.com`;
+    const userResponse = await request(app)
+      .post('/api/v1/auth/register')
+      .send({
+        email: uniqueUserEmail,
+        password: 'password123',
+        name: 'Empty Test User',
+      });
+
+    const emptyToken = userResponse.body.data.token;
+
+    const response = await request(app)
+      .get('/api/v1/leads')
+      .set('Authorization', `Bearer ${emptyToken}`)
+      .expect(200);
+
+    expect(response.body.success).toBe(true);
+    expect(Array.isArray(response.body.data.leads)).toBe(true);
+    expect(response.body.data.leads.length).toBe(0);
+    expect(response.body.data.pagination.total).toBe(0);
+  });
+
+  it('search with special characters does not error', async () => {
+    await request(app)
+      .post('/api/v1/leads')
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        name: 'O\'Brien & Co',
+        company: 'O\'Brien & Co',
+      });
+
+    const response = await request(app)
+      .get('/api/v1/leads')
+      .query({ search: 'O\'Brien & Co' })
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .expect(200);
+
+    expect(response.body.success).toBe(true);
+  });
+
+  it('pagination returns correct page 2 results', async () => {
+    for (let i = 1; i <= 25; i++) {
+      await request(app)
+        .post('/api/v1/leads')
+        .set('Authorization', `Bearer ${testUser1Token}`)
+        .send({
+          name: `Pagination Test Lead ${i}`,
+        });
+    }
+
+    const page2Response = await request(app)
+      .get('/api/v1/leads')
+      .query({ page: 2, limit: 20 })
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .expect(200);
+
+    expect(page2Response.body.success).toBe(true);
+    expect(page2Response.body.data.pagination.page).toBe(2);
+    expect(page2Response.body.data.pagination.limit).toBe(20);
+    expect(page2Response.body.data.leads.length).toBeGreaterThan(0);
+  });
+
+  it('filter by CLOSED_WON stage', async () => {
+    await request(app)
+      .post('/api/v1/leads')
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        name: 'Won Lead',
+        stage: LeadStage.CLOSED_WON,
+      });
+
+    const response = await request(app)
+      .get('/api/v1/leads')
+      .query({ stage: LeadStage.CLOSED_WON })
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .expect(200);
+
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.leads.length).toBeGreaterThan(0);
+    response.body.data.leads.forEach((lead: any) => {
+      expect(lead.stage).toBe(LeadStage.CLOSED_WON);
+    });
   });
 });
 

@@ -99,16 +99,16 @@ jobs:
         run: npm ci
 
       - name: Run API tests
-        run: npx turbo run test --filter=@leadflow/api
+        run: cd apps/api && npm run test:coverage
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/leadflow_test
           REDIS_URL: redis://localhost:6379
 
-      - name: Upload API coverage
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: api-coverage
+          name: api-coverage-report
           path: apps/api/coverage/
 
   test-web:
