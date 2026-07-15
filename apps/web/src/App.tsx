@@ -6,6 +6,7 @@ import ResetPasswordForm from './pages/auth/ResetPasswordForm';
 import LandingPage from './pages/landing/LandingPage';
 import AppLayout from './layouts/AppLayout';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import LeadsPage from './pages/leads/LeadsPage';
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -23,17 +24,6 @@ function ProtectedRoute() {
   }
 
   return <Outlet />;
-}
-
-function LeadsPage() {
-  return (
-    <div className="flex items-center justify-center h-full">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-2">Leads</h2>
-        <p className="text-muted-foreground">Leads coming soon</p>
-      </div>
-    </div>
-  );
 }
 
 function FollowUpsPage() {
