@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/toast';
 import StageSelector from './StageSelector';
 import LeadInfoForm, { type UpdateLeadPayload } from './LeadInfoForm';
 import DeleteLeadDialog from './DeleteLeadDialog';
+import ActivityLogSection from './ActivityLogSection';
 import { LeadStage } from '@/types/api';
 
 export default function LeadDetailPage() {
@@ -137,17 +138,24 @@ export default function LeadDetailPage() {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          <LeadInfoForm
-            lead={lead}
-            isEditing={isEditing}
-            onSave={handleSave}
-            onCancel={() => setIsEditing(false)}
-            isSaving={updateLead.isPending}
-          />
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardContent className="pt-6">
+              <LeadInfoForm
+                lead={lead}
+                isEditing={isEditing}
+                onSave={handleSave}
+                onCancel={() => setIsEditing(false)}
+                isSaving={updateLead.isPending}
+              />
+            </CardContent>
+          </Card>
+        </div>
+        <div className="lg:col-span-1">
+          <ActivityLogSection leadId={lead.id} />
+        </div>
+      </div>
 
       <DeleteLeadDialog
         isOpen={isDeleteOpen}
