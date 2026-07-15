@@ -18,9 +18,10 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
+  onSwitchToForgot: () => void;
 }
 
-export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+export default function LoginForm({ onSwitchToRegister, onSwitchToForgot }: LoginFormProps) {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { toast } = useToast();
@@ -75,12 +76,13 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
       </div>
 
       <div className="flex items-center justify-between">
-        <a
-          href="/auth?mode=forgot"
+        <button
+          type="button"
+          onClick={onSwitchToForgot}
           className="text-sm text-primary hover:underline"
         >
           Forgot password?
-        </a>
+        </button>
       </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>

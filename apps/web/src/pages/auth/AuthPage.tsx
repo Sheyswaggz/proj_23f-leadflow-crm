@@ -3,14 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
+import ForgotPasswordForm from './ForgotPasswordForm';
 import { Toaster } from '@/components/ui/toast';
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
-  const [mode, setMode] = useState<'login' | 'register'>(
-    (searchParams.get('mode') as 'login' | 'register') || 'login'
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>(
+    (searchParams.get('mode') as 'login' | 'register' | 'forgot') || 'login'
   );
 
   useEffect(() => {
@@ -23,6 +24,8 @@ export default function AuthPage() {
     const paramMode = searchParams.get('mode');
     if (paramMode === 'register') {
       setMode('register');
+    } else if (paramMode === 'forgot') {
+      setMode('forgot');
     } else {
       setMode('login');
     }
@@ -56,20 +59,31 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-2">
-              {mode === 'login' ? 'Welcome back' : 'Create an account'}
+              {mode === 'login'
+                ? 'Welcome back'
+                : mode === 'register'
+                ? 'Create an account'
+                : 'Reset your password'}
             </h2>
             <p className="text-muted-foreground">
               {mode === 'login'
                 ? 'Enter your credentials to access your account'
-                : 'Sign up to get started with LeadFlow CRM'}
+                : mode === 'register'
+                ? 'Sign up to get started with LeadFlow CRM'
+                : 'Enter your email to receive a password reset link'}
             </p>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-6 shadow-lg">
             {mode === 'login' ? (
-              <LoginForm onSwitchToRegister={() => setMode('register')} />
-            ) : (
+              <LoginForm
+                onSwitchToRegister={() => setMode('register')}
+                onSwitchToForgot={() => setMode('forgot')}
+              />
+            ) : mode === 'register' ? (
               <RegisterForm onSwitchToLogin={() => setMode('login')} />
+            ) : (
+              <ForgotPasswordForm onSwitchToLogin={() => setMode('login')} />
             )}
           </div>
         </div>
