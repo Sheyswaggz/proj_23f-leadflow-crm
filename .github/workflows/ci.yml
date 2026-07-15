@@ -1,0 +1,159 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+      - fix/**
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect path changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'apps/api/**'
+              - 'package.json'
+              - 'package-lock.json'
+            web:
+              - 'apps/web/**'
+              - 'package.json'
+              - 'package-lock.json'
+
+  lint:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npx turbo run lint
+
+  test-api:
+    needs: [lint, detect-changes]
+    if: needs.detect-changes.outputs.api == 'true' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: leadflow_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run API tests
+        run: npx turbo run test --filter=@leadflow/api
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/leadflow_test
+          REDIS_URL: redis://localhost:6379
+
+      - name: Upload API coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-coverage
+          path: apps/api/coverage/
+
+  test-web:
+    needs: [lint, detect-changes]
+    if: needs.detect-changes.outputs.web == 'true' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run web tests
+        run: npx turbo run test --filter=@leadflow/web
+
+      - name: Upload web coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: web-coverage
+          path: apps/web/coverage/
+
+  build:
+    needs: [test-api, test-web]
+    if: always() && (needs.test-api.result == 'success' || needs.test-api.result == 'skipped') && (needs.test-web.result == 'success' || needs.test-web.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all workspaces
+        run: npx turbo run build
