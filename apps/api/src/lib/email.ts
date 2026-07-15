@@ -82,6 +82,74 @@ LeadFlow CRM
     });
   }
 
+  async sendReminderNotificationEmail(
+    to: string,
+    data: { leadName: string; dueAt: Date; note?: string | null }
+  ): Promise<void> {
+    const frontendUrl = process.env['FRONTEND_URL'] ?? 'http://localhost:5173';
+
+    const htmlTemplate = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background-color: #2563eb; color: white; padding: 20px; text-align: center; }
+    .content { padding: 30px 20px; background-color: #f9fafb; }
+    .button { display: inline-block; padding: 12px 30px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+    .footer { padding: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+    .info-box { padding: 15px; background-color: #e0f2fe; border-left: 4px solid: #2563eb; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>LeadFlow CRM</h1>
+    </div>
+    <div class="content">
+      <h2>Follow-up Reminder: ${data.leadName}</h2>
+      <p>You have a follow-up due for <strong>${data.leadName}</strong></p>
+      <div class="info-box">
+        <p><strong>Due:</strong> ${data.dueAt.toLocaleString()}</p>
+        ${data.note ? `<p><strong>Note:</strong> ${data.note}</p>` : ''}
+      </div>
+      <p style="text-align: center;">
+        <a href="${frontendUrl}/leads" class="button">View Leads</a>
+      </p>
+    </div>
+    <div class="footer">
+      <p>&copy; LeadFlow CRM. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `.trim();
+
+    const textTemplate = `
+LeadFlow CRM - Follow-up Reminder
+
+You have a follow-up due for ${data.leadName}
+
+Due: ${data.dueAt.toLocaleString()}${data.note ? `\nNote: ${data.note}` : ''}
+
+View your leads: ${frontendUrl}/leads
+
+---
+LeadFlow CRM
+    `.trim();
+
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to,
+      subject: `Follow-up Reminder: ${data.leadName}`,
+      html: htmlTemplate,
+      text: textTemplate,
+    });
+  }
+
   async verifyConnection(): Promise<boolean> {
     try {
       await transporter.verify();
