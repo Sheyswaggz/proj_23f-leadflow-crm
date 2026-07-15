@@ -7,6 +7,7 @@ import LandingPage from './pages/landing/LandingPage';
 import AppLayout from './layouts/AppLayout';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import LeadsPage from './pages/leads/LeadsPage';
+import LeadDetailPage from './pages/leads/LeadDetailPage';
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -91,6 +92,7 @@ export default function App() {
       >
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/leads" element={<LeadsPage />} />
+        <Route path="/leads/:id" element={<LeadDetailPage />} />
         <Route path="/follow-ups" element={<FollowUpsPage />} />
       </Route>
     </Routes>
