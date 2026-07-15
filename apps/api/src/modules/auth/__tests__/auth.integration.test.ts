@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
+import jwt from 'jsonwebtoken';
 import { createApp } from '../../../app.js';
 import prisma from '../../../lib/prisma.js';
 
@@ -81,6 +82,48 @@ describe('POST /api/v1/auth/register', () => {
         name: 'Test User',
       })
       .expect(400);
+  });
+
+  it('register trims whitespace from name field', async () => {
+    const uniqueEmail = `trim${Date.now()}@example.com`;
+    const response = await request(app)
+      .post('/api/v1/auth/register')
+      .send({
+        email: uniqueEmail,
+        password: 'password123',
+        name: '  Test User  ',
+      })
+      .expect(201);
+
+    expect(response.body.data.user.name).toBe('Test User');
+  });
+
+  it('rejects password with only spaces', async () => {
+    const uniqueEmail = `spaces${Date.now()}@example.com`;
+    const response = await request(app)
+      .post('/api/v1/auth/register')
+      .send({
+        email: uniqueEmail,
+        password: '        ',
+        name: 'Test User',
+      })
+      .expect(400);
+
+    expect(response.body.success).toBe(false);
+  });
+
+  it('returns correct error shape with success:false', async () => {
+    const response = await request(app)
+      .post('/api/v1/auth/register')
+      .send({
+        email: 'invalid',
+        password: 'password123',
+        name: 'Test User',
+      })
+      .expect(400);
+
+    expect(response.body.success).toBe(false);
+    expect(response.body.error).toBeDefined();
   });
 });
 
@@ -187,5 +230,89 @@ describe('POST /api/v1/auth/login', () => {
 
     expect(checkForPasswordHash(registerResponse.body)).toBe(false);
     expect(checkForPasswordHash(loginResponse.body)).toBe(false);
+  });
+
+  it('handles concurrent login sessions — both tokens valid', async () => {
+    const uniqueEmail = `concurrent${Date.now()}@example.com`;
+    const password = 'password123';
+
+    await request(app)
+      .post('/api/v1/auth/register')
+      .send({
+        email: uniqueEmail,
+        password,
+        name: 'Test User',
+      })
+      .expect(201);
+
+    const login1 = await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        email: uniqueEmail,
+        password,
+      })
+      .expect(200);
+
+    const login2 = await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        email: uniqueEmail,
+        password,
+      })
+      .expect(200);
+
+    const token1 = login1.body.data.token;
+    const token2 = login2.body.data.token;
+
+    expect(token1).toBeDefined();
+    expect(token2).toBeDefined();
+    expect(token1).not.toBe(token2);
+
+    const response1 = await request(app)
+      .get('/api/v1/dashboard/metrics')
+      .set('Authorization', `Bearer ${token1}`)
+      .expect(200);
+
+    const response2 = await request(app)
+      .get('/api/v1/dashboard/metrics')
+      .set('Authorization', `Bearer ${token2}`)
+      .expect(200);
+
+    expect(response1.body.success).toBe(true);
+    expect(response2.body.success).toBe(true);
+  });
+
+  it('rejects token with tampered payload', async () => {
+    const uniqueEmail = `tamper${Date.now()}@example.com`;
+    const password = 'password123';
+
+    await request(app)
+      .post('/api/v1/auth/register')
+      .send({
+        email: uniqueEmail,
+        password,
+        name: 'Test User',
+      })
+      .expect(201);
+
+    const loginResponse = await request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        email: uniqueEmail,
+        password,
+      })
+      .expect(200);
+
+    const validToken = loginResponse.body.data.token;
+    const decoded: any = jwt.decode(validToken);
+
+    decoded.userId = 'tampered-user-id';
+
+    const tamperedToken = jwt.sign(decoded, 'wrong-secret');
+
+    await request(app)
+      .get('/api/v1/dashboard/metrics')
+      .set('Authorization', `Bearer ${tamperedToken}`)
+      .expect(401);
   });
 });

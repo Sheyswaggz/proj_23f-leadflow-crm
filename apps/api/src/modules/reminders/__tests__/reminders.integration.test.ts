@@ -251,6 +251,87 @@ describe('GET /api/v1/reminders', () => {
       expect(reminder.isCompleted).toBe(false);
     });
   });
+
+  it('overdue boundary — reminder at exactly dueAt=now is overdue', async () => {
+    const overdueDueAt = new Date(Date.now() - 1).toISOString();
+    const createResponse = await request(app)
+      .post(`/api/v1/leads/${testUser1LeadId}/reminders`)
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        dueAt: overdueDueAt,
+        note: 'Just overdue reminder',
+      });
+
+    const reminderId = createResponse.body.data.id;
+
+    const response = await request(app)
+      .get('/api/v1/reminders?status=overdue')
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .expect(200);
+
+    expect(response.body.success).toBe(true);
+    const overdueReminders = response.body.data;
+    const foundReminder = overdueReminders.find((r: any) => r.id === reminderId);
+    expect(foundReminder).toBeDefined();
+  });
+
+  it('upcoming boundary — reminder at dueAt=now+1ms is upcoming', async () => {
+    const upcomingDueAt = new Date(Date.now() + 1).toISOString();
+    const createResponse = await request(app)
+      .post(`/api/v1/leads/${testUser1LeadId}/reminders`)
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        dueAt: upcomingDueAt,
+        note: 'Just upcoming reminder',
+      });
+
+    const reminderId = createResponse.body.data.id;
+
+    const response = await request(app)
+      .get('/api/v1/reminders?status=upcoming')
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .expect(200);
+
+    expect(response.body.success).toBe(true);
+    const upcomingReminders = response.body.data;
+    const foundReminder = upcomingReminders.find((r: any) => r.id === reminderId);
+    expect(foundReminder).toBeDefined();
+  });
+
+  it('list reminders with status=all returns both overdue and upcoming', async () => {
+    const overdueDueAt = new Date(Date.now() - 86400000).toISOString();
+    const upcomingDueAt = new Date(Date.now() + 86400000).toISOString();
+
+    await request(app)
+      .post(`/api/v1/leads/${testUser1LeadId}/reminders`)
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        dueAt: overdueDueAt,
+        note: 'Overdue for all test',
+      });
+
+    await request(app)
+      .post(`/api/v1/leads/${testUser1LeadId}/reminders`)
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        dueAt: upcomingDueAt,
+        note: 'Upcoming for all test',
+      });
+
+    const response = await request(app)
+      .get('/api/v1/reminders?status=all')
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .expect(200);
+
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toBeInstanceOf(Array);
+    expect(response.body.data.length).toBeGreaterThanOrEqual(2);
+
+    const hasOverdue = response.body.data.some((r: any) => new Date(r.dueAt).getTime() < Date.now() && !r.isCompleted);
+    const hasUpcoming = response.body.data.some((r: any) => new Date(r.dueAt).getTime() >= Date.now() && !r.isCompleted);
+    expect(hasOverdue).toBe(true);
+    expect(hasUpcoming).toBe(true);
+  });
 });
 
 describe('PATCH /api/v1/reminders/:id', () => {
@@ -304,6 +385,38 @@ describe('PATCH /api/v1/reminders/:id', () => {
     expect(response.body.data.completedAt).not.toBeNull();
   });
 
+  it('complete reminder sets completedAt to current time', async () => {
+    const dueAt = new Date(Date.now() + 86400000).toISOString();
+    const createResponse = await request(app)
+      .post(`/api/v1/leads/${testUser1LeadId}/reminders`)
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        dueAt,
+        note: 'To be completed with timestamp check',
+      });
+
+    const reminderId = createResponse.body.data.id;
+    const beforeComplete = Date.now();
+
+    const response = await request(app)
+      .patch(`/api/v1/reminders/${reminderId}`)
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        isCompleted: true,
+      })
+      .expect(200);
+
+    const afterComplete = Date.now();
+
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.isCompleted).toBe(true);
+    expect(response.body.data.completedAt).toBeDefined();
+
+    const completedAtTime = new Date(response.body.data.completedAt).getTime();
+    expect(completedAtTime).toBeGreaterThanOrEqual(beforeComplete - 1000);
+    expect(completedAtTime).toBeLessThanOrEqual(afterComplete + 1000);
+  });
+
   it('returns 404 for another users reminder', async () => {
     const dueAt = new Date(Date.now() + 86400000).toISOString();
     const createResponse = await request(app)
@@ -323,6 +436,35 @@ describe('PATCH /api/v1/reminders/:id', () => {
         note: 'Trying to update another users reminder',
       })
       .expect(404);
+  });
+
+  it('cannot update reminder belonging to another user', async () => {
+    const dueAt = new Date(Date.now() + 86400000).toISOString();
+    const createResponse = await request(app)
+      .post(`/api/v1/leads/${testUser2LeadId}/reminders`)
+      .set('Authorization', `Bearer ${testUser2Token}`)
+      .send({
+        dueAt,
+        note: 'User 2 private reminder',
+      });
+
+    const reminderId = createResponse.body.data.id;
+
+    await request(app)
+      .patch(`/api/v1/reminders/${reminderId}`)
+      .set('Authorization', `Bearer ${testUser1Token}`)
+      .send({
+        isCompleted: true,
+      })
+      .expect(404);
+
+    const verifyResponse = await request(app)
+      .get('/api/v1/reminders')
+      .set('Authorization', `Bearer ${testUser2Token}`)
+      .expect(200);
+
+    const reminder = verifyResponse.body.data.find((r: any) => r.id === reminderId);
+    expect(reminder.isCompleted).toBe(false);
   });
 });
 
