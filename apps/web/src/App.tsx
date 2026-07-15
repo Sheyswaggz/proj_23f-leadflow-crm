@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import AuthPage from './pages/auth/AuthPage';
 import ResetPasswordForm from './pages/auth/ResetPasswordForm';
 import LandingPage from './pages/landing/LandingPage';
+import AppLayout from './layouts/AppLayout';
+import DashboardPage from './pages/dashboard/DashboardPage';
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -23,12 +25,23 @@ function ProtectedRoute() {
   return <Outlet />;
 }
 
-function DashboardPage() {
+function LeadsPage() {
   return (
-    <div className="flex h-screen items-center justify-center bg-background">
+    <div className="flex items-center justify-center h-full">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to LeadFlow CRM</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Leads</h2>
+        <p className="text-muted-foreground">Leads coming soon</p>
+      </div>
+    </div>
+  );
+}
+
+function FollowUpsPage() {
+  return (
+    <div className="flex items-center justify-center h-full">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-foreground mb-2">Follow-ups</h2>
+        <p className="text-muted-foreground">Follow-ups coming soon</p>
       </div>
     </div>
   );
@@ -79,8 +92,16 @@ export default function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
-      <Route element={<ProtectedRoute />}>
+      <Route
+        element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/leads" element={<LeadsPage />} />
+        <Route path="/follow-ups" element={<FollowUpsPage />} />
       </Route>
     </Routes>
   );
