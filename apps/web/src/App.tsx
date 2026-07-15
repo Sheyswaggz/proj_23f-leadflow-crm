@@ -3,6 +3,7 @@ import { Loader } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import AuthPage from './pages/auth/AuthPage';
 import ResetPasswordForm from './pages/auth/ResetPasswordForm';
+import LandingPage from './pages/landing/LandingPage';
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -75,9 +76,9 @@ function ResetPasswordPage() {
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
       </Route>
