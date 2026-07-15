@@ -32,6 +32,36 @@ export enum LeadStage {
   CLOSED_LOST = 'CLOSED_LOST'
 }
 
+export interface ActivityLog {
+  id: string;
+  leadId: string;
+  userId: string;
+  type: 'CALL' | 'EMAIL' | 'MEETING' | 'NOTE' | 'OTHER';
+  content: string;
+  createdAt: string;
+  user?: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface FollowUpReminder {
+  id: string;
+  leadId: string;
+  userId: string;
+  dueAt: string;
+  note?: string;
+  isCompleted: boolean;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  lead?: {
+    id: string;
+    name: string;
+    company?: string;
+  };
+}
+
 export interface Lead {
   id: string;
   userId: string;
@@ -45,4 +75,23 @@ export interface Lead {
   dealValue?: string;
   createdAt: string;
   updatedAt: string;
+  activityLogs?: ActivityLog[];
+  followUpReminders?: FollowUpReminder[];
+}
+
+export interface PaginatedLeads {
+  leads: Lead[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface DashboardStats {
+  leadsByStage: Record<string, number>;
+  upcomingReminders: FollowUpReminder[];
+  overdueCount: number;
+  recentLeads: Partial<Lead>[];
 }
