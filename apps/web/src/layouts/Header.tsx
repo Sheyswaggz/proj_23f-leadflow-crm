@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,9 +13,23 @@ interface HeaderProps {
   title?: string;
 }
 
-export default function Header({ title }: HeaderProps) {
+export default function Header({ title: _title }: HeaderProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const getPageTitle = (): string => {
+    const pathname = location.pathname;
+
+    if (pathname === '/dashboard') return 'Dashboard';
+    if (pathname === '/leads') return 'Leads';
+    if (pathname.startsWith('/leads/')) return 'Lead Detail';
+    if (pathname === '/follow-ups') return 'Follow-ups';
+
+    return 'LeadFlow CRM';
+  };
+
+  const title = getPageTitle();
 
   const handleLogout = async () => {
     await logout();
