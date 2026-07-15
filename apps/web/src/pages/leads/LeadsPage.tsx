@@ -7,6 +7,8 @@ import LeadFilters from './LeadFilters';
 import CreateLeadModal from './CreateLeadModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { SkeletonLeadCard } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function LeadsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -87,13 +89,7 @@ export default function LeadsPage() {
       {isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="p-4">
-              <div className="animate-pulse space-y-3">
-                <div className="h-4 bg-muted rounded w-3/4" />
-                <div className="h-3 bg-muted rounded w-1/2" />
-                <div className="h-3 bg-muted rounded w-2/3" />
-              </div>
-            </Card>
+            <SkeletonLeadCard key={i} />
           ))}
         </div>
       )}
@@ -113,23 +109,13 @@ export default function LeadsPage() {
       )}
 
       {!isLoading && !isError && data && data.leads.length === 0 && (
-        <div className="text-center py-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-            <i className="fas fa-users text-2xl text-muted-foreground" />
-          </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">No leads found</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            {search || stage
-              ? 'Try adjusting your filters to find leads'
-              : 'Get started by creating your first lead'}
-          </p>
-          {!search && !stage && (
-            <Button onClick={() => setIsCreateOpen(true)}>
-              <i className="fas fa-plus mr-2" />
-              Create your first lead
-            </Button>
-          )}
-        </div>
+        <EmptyState
+          icon="fa-solid fa-users"
+          title="No leads found"
+          description="Create your first lead to start tracking your pipeline."
+          actionLabel="Create Lead"
+          onAction={() => setIsCreateOpen(true)}
+        />
       )}
 
       {!isLoading && !isError && data && data.leads.length > 0 && (

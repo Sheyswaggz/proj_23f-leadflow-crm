@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ReminderItem from './ReminderItem';
 import AddReminderForm from './AddReminderForm';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface ReminderSectionProps {
   leadId: string;
@@ -49,14 +51,8 @@ export default function ReminderSection({ leadId }: ReminderSectionProps) {
         <div className="border-t border-border pt-6">
           {isLoading ? (
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex gap-3 p-3">
-                  <div className="w-5 h-5 rounded-full bg-muted animate-pulse" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-muted rounded animate-pulse w-2/3" />
-                    <div className="h-3 bg-muted rounded animate-pulse w-1/2" />
-                  </div>
-                </div>
+              {[1, 2].map((i) => (
+                <div key={i} className="h-14 rounded-lg animate-pulse bg-muted/50" />
               ))}
             </div>
           ) : sortedReminders.length > 0 ? (
@@ -84,11 +80,11 @@ export default function ReminderSection({ leadId }: ReminderSectionProps) {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                No reminders scheduled. Add one above.
-              </p>
-            </div>
+            <EmptyState
+              icon="fa-solid fa-bell-slash"
+              title="No reminders scheduled"
+              description="Add a follow-up reminder above to stay on top of this lead."
+            />
           )}
         </div>
       </CardContent>

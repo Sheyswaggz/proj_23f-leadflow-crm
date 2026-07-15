@@ -3,6 +3,7 @@ import { useDashboardStats } from '@/hooks/useDashboard';
 import PipelineHealthWidget from './PipelineHealthWidget';
 import UpcomingRemindersWidget from './UpcomingRemindersWidget';
 import RecentLeadsWidget from './RecentLeadsWidget';
+import { Skeleton, SkeletonCard } from '@/components/ui/skeleton';
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -34,12 +35,13 @@ export default function DashboardPage() {
 
       {isLoading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-64 bg-card border border-border rounded-lg animate-pulse"
-            />
-          ))}
+          <div className="space-y-6">
+            <SkeletonCard className="h-64" />
+            <SkeletonCard className="h-48" />
+          </div>
+          <div>
+            <SkeletonCard className="h-80" />
+          </div>
         </div>
       )}
 
