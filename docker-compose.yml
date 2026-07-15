@@ -1,0 +1,96 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: leadflow_postgres
+    environment:
+      POSTGRES_DB: leadflow_dev
+      POSTGRES_USER: leadflow
+      POSTGRES_PASSWORD: leadflow_password
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - leadflow_network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U leadflow -d leadflow_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: leadflow_redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - leadflow_network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: leadflow_mailhog
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    networks:
+      - leadflow_network
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: leadflow_api
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://leadflow:leadflow_password@postgres:5432/leadflow_dev
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - FRONTEND_URL=http://localhost:5173
+      - CORS_ORIGIN=http://localhost:5173
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - leadflow_network
+    volumes:
+      - ./apps/api:/app
+      - /app/node_modules
+    command: npm run dev
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: leadflow_web
+    ports:
+      - '5173:80'
+    environment:
+      - VITE_API_URL=http://localhost:3001
+      - VITE_ENV=development
+    depends_on:
+      - api
+    networks:
+      - leadflow_network
+
+networks:
+  leadflow_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
