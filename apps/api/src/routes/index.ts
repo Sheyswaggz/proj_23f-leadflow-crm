@@ -3,6 +3,10 @@ import { ApiResponse } from '../types/index.js';
 import { authRouter } from '../modules/auth/auth.routes.js';
 import { leadRouter } from '../modules/leads/lead.routes.js';
 import { activityRouter } from '../modules/activities/activity.routes.js';
+import {
+  leadRemindersRouter,
+  userRemindersRouter,
+} from '../modules/reminders/reminder.routes.js';
 
 export const apiRouter = Router();
 
@@ -18,3 +22,5 @@ apiRouter.get('/ping', (req: Request, res: Response) => {
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/leads', leadRouter);
 apiRouter.use('/leads/:leadId/activities', activityRouter);
+apiRouter.use('/leads/:leadId/reminders', leadRemindersRouter);
+apiRouter.use('/reminders', userRemindersRouter);
