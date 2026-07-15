@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import ReminderListItem from './ReminderListItem';
 import { FollowUpReminder } from '@/types/api';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
 
 type ActiveTab = 'all' | 'overdue' | 'upcoming';
 
@@ -172,17 +174,23 @@ export default function FollowUpsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader className="h-8 w-8 animate-spin text-primary" />
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-16 rounded-lg bg-muted/50 animate-pulse" />
+          ))}
         </div>
       ) : getDisplayedReminders().length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            {activeTab === 'overdue' && 'No overdue reminders'}
-            {activeTab === 'upcoming' && 'No upcoming reminders'}
-            {activeTab === 'all' && 'No reminders found'}
-          </p>
-        </div>
+        <EmptyState
+          icon="fa-solid fa-bell"
+          title="No follow-ups"
+          description={
+            activeTab === 'overdue'
+              ? 'No overdue reminders'
+              : activeTab === 'upcoming'
+              ? 'No upcoming follow-ups'
+              : 'No follow-ups scheduled'
+          }
+        />
       ) : (
         <>
           {activeTab === 'all' && (

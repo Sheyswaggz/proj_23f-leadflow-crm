@@ -2,6 +2,8 @@ import { useActivities } from '@/hooks/useActivities';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import ActivityItem from './ActivityItem';
 import LogActivityForm from './LogActivityForm';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface ActivityLogSectionProps {
   leadId: string;
@@ -30,10 +32,10 @@ export default function ActivityLogSection({ leadId }: ActivityLogSectionProps) 
             <div className="space-y-6">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+                  <div className="w-10 h-10 rounded-full bg-muted/50 animate-pulse" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
-                    <div className="h-3 bg-muted rounded animate-pulse w-1/2" />
+                    <div className="h-4 bg-muted/50 rounded animate-pulse w-3/4" />
+                    <div className="h-3 bg-muted/50 rounded animate-pulse w-1/2" />
                   </div>
                 </div>
               ))}
@@ -47,11 +49,11 @@ export default function ActivityLogSection({ leadId }: ActivityLogSectionProps) 
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                No activities yet. Log your first interaction above.
-              </p>
-            </div>
+            <EmptyState
+              icon="fa-solid fa-comments"
+              title="No activities yet"
+              description="Log your first interaction above to start the timeline."
+            />
           )}
         </div>
       </CardContent>
