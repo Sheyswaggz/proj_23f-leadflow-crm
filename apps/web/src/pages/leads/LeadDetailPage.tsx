@@ -9,6 +9,7 @@ import StageSelector from './StageSelector';
 import LeadInfoForm, { type UpdateLeadPayload } from './LeadInfoForm';
 import DeleteLeadDialog from './DeleteLeadDialog';
 import ActivityLogSection from './ActivityLogSection';
+import ReminderSection from './ReminderSection';
 import { LeadStage } from '@/types/api';
 
 export default function LeadDetailPage() {
@@ -152,7 +153,8 @@ export default function LeadDetailPage() {
             </CardContent>
           </Card>
         </div>
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 space-y-6">
+          <ReminderSection leadId={lead.id} />
           <ActivityLogSection leadId={lead.id} />
         </div>
       </div>
