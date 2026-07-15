@@ -7,6 +7,7 @@ import {
   leadRemindersRouter,
   userRemindersRouter,
 } from '../modules/reminders/reminder.routes.js';
+import { dashboardRouter } from '../modules/dashboard/dashboard.routes.js';
 
 export const apiRouter = Router();
 
@@ -24,3 +25,4 @@ apiRouter.use('/leads', leadRouter);
 apiRouter.use('/leads/:leadId/activities', activityRouter);
 apiRouter.use('/leads/:leadId/reminders', leadRemindersRouter);
 apiRouter.use('/reminders', userRemindersRouter);
+apiRouter.use('/dashboard', dashboardRouter);
