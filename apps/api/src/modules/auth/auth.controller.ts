@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { authService } from './auth.service.js';
+import { passwordResetService } from './password-reset.service.js';
 import { AuthenticatedRequest } from '../../types/index.js';
 
 class AuthController {
@@ -52,6 +53,30 @@ class AuthController {
       res.status(200).json({
         success: true,
         data: user,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async forgotPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      await passwordResetService.requestReset(req.body.email);
+      res.status(200).json({
+        success: true,
+        message: 'If an account with that email exists, a reset link has been sent.',
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      await passwordResetService.resetPassword(req.body.token, req.body.password);
+      res.status(200).json({
+        success: true,
+        message: 'Password reset successfully',
       });
     } catch (err) {
       next(err);
