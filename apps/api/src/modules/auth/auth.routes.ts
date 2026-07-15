@@ -1,7 +1,12 @@
 import { Router } from 'express';
 import { authController } from './auth.controller.js';
 import { validate } from '../../middleware/validate.middleware.js';
-import { registerSchema, loginSchema } from './auth.schemas.js';
+import {
+  registerSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from './auth.schemas.js';
 import { authenticateJwt } from '../../middleware/authenticate.middleware.js';
 
 export const authRouter = Router();
@@ -28,4 +33,16 @@ authRouter.get(
   '/me',
   authenticateJwt,
   authController.getMe.bind(authController)
+);
+
+authRouter.post(
+  '/forgot-password',
+  validate(forgotPasswordSchema),
+  authController.forgotPassword.bind(authController)
+);
+
+authRouter.post(
+  '/reset-password',
+  validate(resetPasswordSchema),
+  authController.resetPassword.bind(authController)
 );
