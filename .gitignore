@@ -33,3 +33,7 @@ npm-debug.log*
 # IDE
 .vscode/
 .idea/
+
+# Vite build artifacts
+vite.config.js
+vite.config.d.ts
