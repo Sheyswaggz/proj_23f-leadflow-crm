@@ -1,4 +1,4 @@
-export interface User {
+import { Request } from 'express';\nexport interface User {
   id: string;
   email: string;
   name?: string;
@@ -27,3 +27,4 @@ export class AppError extends Error {
     this.name = "AppError";
   }
 }
+\nexport interface AuthenticatedRequest extends Request {\n  user: {\n    id: string;\n    email: string;\n    role: string;\n  };\n}\n
