@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { RecentLeadsWidget } from '../RecentLeadsWidget';
+import RecentLeadsWidget from '../RecentLeadsWidget';
 import { Lead, LeadStage } from '@/types/api';
 
 describe('RecentLeadsWidget', () => {
