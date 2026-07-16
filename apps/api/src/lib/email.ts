@@ -11,3 +11,16 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
 }
 
 export default { sendEmail };
+
+
+export class EmailService {
+  async sendPasswordResetEmail(email: string, token: string): Promise<void> {
+    await sendEmail({
+      to: email,
+      subject: "Password Reset",
+      text: "Your password reset token is: " + token,
+    });
+  }
+}
+
+export const emailService = new EmailService();
