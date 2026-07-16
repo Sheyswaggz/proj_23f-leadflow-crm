@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { PipelineHealthWidget } from '../PipelineHealthWidget';
+import PipelineHealthWidget from '../PipelineHealthWidget';
 import { LeadStage } from '@/types/api';
 
 describe('PipelineHealthWidget', () => {
