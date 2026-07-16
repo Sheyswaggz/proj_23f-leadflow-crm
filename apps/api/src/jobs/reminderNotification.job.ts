@@ -41,11 +41,11 @@ export function startReminderNotificationJob(): void {
 
     for (const reminder of reminders) {
       try {
-        await emailService.sendReminderNotificationEmail(reminder.user.email, {
-          leadName: reminder.lead.name,
-          dueAt: reminder.dueAt,
-          note: reminder.note,
-        });
+      await emailService.sendReminderNotificationEmail(
+        reminder.user.email,
+        `Reminder: ${leadName}`,
+        `You have a reminder for ${leadName} due at ${dueAt}. Note: ${note}`
+      );
 
         await prisma.followUpReminder.update({
           where: { id: reminder.id },
