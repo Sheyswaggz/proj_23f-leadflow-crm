@@ -13,6 +13,13 @@
     }
   },
   "include": ["src"],
+  "exclude": [
+    "src/**/*.test.tsx",
+    "src/**/*.test.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.spec.ts",
+    "src/test/**"
+  ],
   "references": [
     { "path": "./tsconfig.node.json" }
   ]
