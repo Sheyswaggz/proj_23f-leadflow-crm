@@ -2,48 +2,35 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { cn } from '@/lib/utils';
 
 export default function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      {/* Sidebar - Desktop */}
-      <Sidebar />
+      {/* Backdrop overlay for mobile sidebar */}
+      <div
+        className={cn(
+          'fixed inset-0 bg-black/50 z-20 md:hidden',
+          isSidebarOpen ? 'block' : 'hidden'
+        )}
+        onClick={() => setIsSidebarOpen(false)}
+      />
 
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-          <div className="fixed inset-y-0 left-0 z-50 w-64 md:hidden">
-            <Sidebar />
-          </div>
-        </>
-      )}
+      {/* Sidebar */}
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header with Mobile Menu Button */}
+        {/* Header with hamburger button */}
         <div className="relative">
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="md:hidden absolute left-4 top-4 z-10 p-2 rounded-md hover:bg-secondary text-foreground"
+            onClick={() => setIsSidebarOpen(true)}
+            className="md:hidden p-2 rounded-md text-foreground hover:bg-secondary absolute left-4 top-4 z-10"
             aria-label="Toggle menu"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <i className="fa-solid fa-bars text-lg" />
           </button>
           <Header />
         </div>

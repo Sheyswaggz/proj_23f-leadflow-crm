@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import { useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
@@ -7,15 +8,39 @@ const navItems = [
   { to: '/follow-ups', icon: 'fa-solid fa-bell', label: 'Follow-ups' },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user } = useAuth();
+  const location = useLocation();
+
+  // Close sidebar on route change (mobile only)
+  useEffect(() => {
+    if (onClose) {
+      onClose();
+    }
+  }, [location.pathname]);
 
   return (
-    <div className="hidden md:flex md:w-64 md:flex-col bg-card border-r border-border">
+    <div
+      className={`fixed inset-y-0 left-0 z-30 w-64 flex flex-col transform transition-transform duration-300 ease-in-out ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      } md:relative md:translate-x-0 md:flex bg-card border-r border-border`}
+    >
       <div className="flex flex-col h-full">
-        {/* Logo */}
-        <div className="flex items-center h-16 px-6 border-b border-border">
+        {/* Logo and close button */}
+        <div className="flex items-center justify-between h-16 px-6 border-b border-border">
           <h1 className="text-xl font-bold text-foreground">LeadFlow CRM</h1>
+          <button
+            onClick={onClose}
+            className="md:hidden p-1 rounded text-muted-foreground hover:text-foreground"
+            aria-label="Close menu"
+          >
+            <i className="fa-solid fa-times" />
+          </button>
         </div>
 
         {/* Navigation */}

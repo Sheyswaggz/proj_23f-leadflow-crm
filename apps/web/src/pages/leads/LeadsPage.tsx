@@ -64,7 +64,7 @@ export default function LeadsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Leads</h1>
           {data && (
@@ -87,7 +87,7 @@ export default function LeadsPage() {
       />
 
       {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <SkeletonLeadCard key={i} />
           ))}
@@ -120,7 +120,7 @@ export default function LeadsPage() {
 
       {!isLoading && !isError && data && data.leads.length > 0 && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.leads.map((lead) => (
               <LeadCard
                 key={lead.id}
