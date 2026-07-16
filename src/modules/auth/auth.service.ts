@@ -106,9 +106,8 @@ class AuthService {
       throw new Error('JWT_SECRET is not defined');
     }
 
-    return jwt.sign({ userId, email }, jwtSecret, {
-      expiresIn: jwtExpiresIn,
-    });
+    const payload = { userId, email };
+    return jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn as any });
   }
 }
 
