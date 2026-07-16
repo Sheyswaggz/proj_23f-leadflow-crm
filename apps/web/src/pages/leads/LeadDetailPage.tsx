@@ -114,8 +114,8 @@ export default function LeadDetailPage() {
         <span className="text-foreground">{lead.name}</span>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-3xl font-bold text-foreground">{lead.name}</h1>
           <StageSelector
             currentStage={lead.stage}
@@ -139,7 +139,7 @@ export default function LeadDetailPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <Card>
             <CardContent className="pt-6">
