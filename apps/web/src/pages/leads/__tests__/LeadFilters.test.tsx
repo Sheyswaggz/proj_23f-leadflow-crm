@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LeadFilters } from '../LeadFilters';
+import LeadFilters from '../LeadFilters';
 
 describe('LeadFilters', () => {
   const mockOnSearchChange = vi.fn();
