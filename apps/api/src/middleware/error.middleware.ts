@@ -1,13 +1,16 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
+import * as Sentry from '@sentry/node';
+import { logger } from '../lib/logger.js';
 import { AppError, ApiResponse } from '../types/index.js';
 
 export const errorHandler: ErrorRequestHandler = (
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
   if (err instanceof AppError) {
+    logger.error({ err, statusCode: err.statusCode }, 'Request error');
     const response: ApiResponse = {
       success: false,
       error: {
@@ -19,12 +22,16 @@ export const errorHandler: ErrorRequestHandler = (
     return;
   }
 
-  console.error('Unexpected error:', err.stack);
+  logger.error({ err, statusCode: 500 }, 'Request error');
+
+  if (process.env['SENTRY_DSN']) {
+    Sentry.captureException(err);
+  }
 
   const response: ApiResponse = {
     success: false,
     error: {
-      message: process.env.NODE_ENV === 'production'
+      message: process.env['NODE_ENV'] === 'production'
         ? 'Internal server error'
         : err.message,
     },
