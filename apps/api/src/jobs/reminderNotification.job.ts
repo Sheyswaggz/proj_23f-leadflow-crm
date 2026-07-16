@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { prisma } from '../lib/prisma.js';
+import prisma from '../lib/prisma.js';
 import { emailService } from '../lib/email.js';
 
 export function startReminderNotificationJob(): void {
