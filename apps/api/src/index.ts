@@ -9,10 +9,10 @@ if (process.env['SENTRY_DSN']) {
     dsn: process.env['SENTRY_DSN'],
     environment: process.env['NODE_ENV'] || 'development',
     tracesSampleRate: process.env['NODE_ENV'] === 'production' ? 0.1 : 1.0,
-    integrations: [
-      Sentry.httpIntegration(),
-    integrations: [new Sentry.Integrations.Express()],
-    ],
+  integrations: [
+    Sentry.httpIntegration(),
+    new Sentry.Integrations.Express(),
+  ],
     beforeSend: (event) => {
       if (event.request?.headers) {
         delete event.request.headers['authorization'];
