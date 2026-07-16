@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { LeadCard } from '../LeadCard';
+import LeadCard from '../LeadCard';
 import { Lead, LeadStage } from '@/types/api';
 
 describe('LeadCard', () => {
