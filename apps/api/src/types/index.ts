@@ -11,7 +11,6 @@ export interface User {
 
 export interface AuthTokenPayload {
   id: string;
-  userId: string;
   email: string;
   role: string;
 }
