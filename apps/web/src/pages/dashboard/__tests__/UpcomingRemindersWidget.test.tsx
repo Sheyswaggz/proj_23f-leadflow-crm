@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { UpcomingRemindersWidget } from '../UpcomingRemindersWidget';
+import UpcomingRemindersWidget from '../UpcomingRemindersWidget';
 import { FollowUpReminder } from '@/types/api';
 
 describe('UpcomingRemindersWidget', () => {
