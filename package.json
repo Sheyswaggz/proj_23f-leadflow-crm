@@ -1,32 +1,17 @@
 {
-  "name": "leadflow-crm",
-  "version": "0.1.0",
+  "name": "leadflow-monorepo",
+  "version": "0.0.0",
   "private": true,
-  "type": "module",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/*"
   ],
   "scripts": {
-    "dev": "turbo run dev",
     "build": "turbo run build",
-    "test": "turbo run test",
-    "test:e2e": "turbo run test --filter=@leadflow/e2e",
+    "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write ."
+    "test": "turbo run test"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
-    "typescript": "^5.0.0",
-    "eslint": "^9.0.0",
-    "prettier": "^3.0.0",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
-    "eslint-plugin-react": "^7.34.0",
-    "eslint-plugin-react-hooks": "^4.6.0"
-  },
-  "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=10.0.0"
+    "turbo": "latest"
   }
 }
