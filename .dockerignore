@@ -17,7 +17,6 @@ dist/
 # Testing
 coverage/
 *.test.ts
-*.test.tsx
 __tests__/
 .vitest/
 

@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import prisma from '../../../lib/prisma.js';
-import { emailService } from '../../../lib/email.js';
-import { AppError } from '../../../types/index.js';
+import prisma from '../../lib/prisma';
+import { emailService } from '../../lib/email';
+import { AppError } from '../../types/index';
 
 const FRONTEND_URL = process.env['FRONTEND_URL'] ?? 'http://localhost:5173';
 
