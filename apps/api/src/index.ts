@@ -11,7 +11,7 @@ if (process.env['SENTRY_DSN']) {
     tracesSampleRate: process.env['NODE_ENV'] === 'production' ? 0.1 : 1.0,
     integrations: [
       Sentry.httpIntegration(),
-      Sentry.expressIntegration(),
+    integrations: [new Sentry.Integrations.Express()],
     ],
     beforeSend: (event) => {
       if (event.request?.headers) {
