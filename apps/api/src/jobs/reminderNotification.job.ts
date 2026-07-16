@@ -41,7 +41,7 @@ export function startReminderNotificationJob(): void {
 
     for (const reminder of reminders) {
       try {
-          await sendReminderNotificationEmail(
+        await emailService.sendReminderNotificationEmail(
             reminder.user.email,
             `Reminder: ${reminder.lead.name}`,
             `You have a reminder for ${reminder.lead.name} due at ${reminder.dueAt}. Note: ${reminder.note}`
