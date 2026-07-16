@@ -107,8 +107,7 @@ class AuthService {
     }
 
     return jwt.sign({ userId, email }, jwtSecret, {
-      expiresIn: jwtExpiresIn,
-    });
+      { expiresIn: jwtExpiresIn as any }
   }
 }
 
