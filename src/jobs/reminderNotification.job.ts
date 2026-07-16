@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { prisma } from '../lib/prisma.js';
+import prisma from '../lib/prisma.js';
 import { emailService } from '../lib/email.js';
 
 export function startReminderNotificationJob(): void {
@@ -41,11 +41,11 @@ export function startReminderNotificationJob(): void {
 
     for (const reminder of reminders) {
       try {
-        await emailService.sendReminderNotificationEmail(reminder.user.email, {
-          leadName: reminder.lead.name,
-          dueAt: reminder.dueAt,
-          note: reminder.note,
-        });
+        await emailService.sendReminderNotificationEmail(
+            reminder.user.email,
+            `Reminder: ${reminder.lead.name}`,
+            `You have a reminder for ${reminder.lead.name} due at ${reminder.dueAt}. Note: ${reminder.note}`
+          );
 
         await prisma.followUpReminder.update({
           where: { id: reminder.id },

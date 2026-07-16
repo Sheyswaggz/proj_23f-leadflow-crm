@@ -1,41 +1,40 @@
 import { Request } from 'express';
 
-export interface ApiResponse<T = any> {
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface AuthTokenPayload {
+  id: string;
+  email: string;
+  role: string;
+}
+
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
-  error?: {
-    message: string;
-    code?: string;
-    details?: any;
-  };
+  error?: string | { message: string; code?: string };
+  message?: string;
 }
 
 export class AppError extends Error {
-  public readonly statusCode: number;
-  public readonly isOperational: boolean;
-  public readonly code?: string;
+  statusCode: number;
+  code?: string;
 
-  constructor(message: string, statusCode: number = 500, code?: string) {
+  constructor(message: string, statusCode: number, code?: string) {
     super(message);
     this.statusCode = statusCode;
-    this.isOperational = true;
     this.code = code;
-
+    this.name = 'AppError';
     Object.setPrototypeOf(this, AppError.prototype);
-    Error.captureStackTrace(this, this.constructor);
   }
 }
 
-export type AsyncHandler = (
-  req: Request,
-  res: any,
-  next: any
-) => Promise<any>;
-
 export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    role: string;
-  };
+  user?: AuthTokenPayload;
 }
